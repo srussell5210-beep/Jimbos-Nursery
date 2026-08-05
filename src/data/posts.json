@@ -1,0 +1,35 @@
+[
+  {
+    "id": "fruit-trees-and-berries",
+    "title": "Fruit Trees & Berries",
+    "author": "Joanne Woolsey",
+    "date": "April 24",
+    "publishedAt": "2026-04-24",
+    "excerpt": "Check out new blueberries, blackberries, citrus & more arriving just in time for spring planting.",
+    "body": "Check out new blueberries, blackberries, citrus & more arriving just in time for spring planting.\n\nStop by the greenhouses to see what's ready to go in the ground this season.",
+    "image": "/images/event_propagation.jpg",
+    "published": true
+  },
+  {
+    "id": "whats-new-at-jimbos",
+    "title": "What’s New at Jimbo’s",
+    "author": "Joanne Woolsey",
+    "date": "April 22",
+    "publishedAt": "2026-04-22",
+    "excerpt": "Ferns, native perennials, and shade loving plants have arrived. Explore our 3 greenhouses for fresh inspiration.",
+    "body": "Ferns, native perennials, and shade loving plants have arrived. Explore our 3 greenhouses for fresh inspiration.",
+    "image": "/images/event_terrarium.jpg",
+    "published": true
+  },
+  {
+    "id": "spring-workshop-lineup",
+    "title": "Spring Workshop Lineup",
+    "author": "Education Team",
+    "date": "April 15",
+    "publishedAt": "2026-04-15",
+    "excerpt": "A vibrant lineup of workshops designed for plant enthusiasts of all ages and skill levels.",
+    "body": "A vibrant lineup of workshops designed for plant enthusiasts of all ages and skill levels.\n\nSee the full calendar on our Events page to reserve your spot.",
+    "image": "/images/event_lawn.jpg",
+    "published": true
+  }
+]

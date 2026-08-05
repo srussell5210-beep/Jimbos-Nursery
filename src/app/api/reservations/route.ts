@@ -29,9 +29,13 @@ export async function POST(request: Request) {
     const email = String(body.email ?? '').trim();
     const guests = Math.min(Math.max(parseInt(body.guests, 10) || 1, 1), 20);
     const timeSlotId = body.timeSlotId ? String(body.timeSlotId).trim() : null;
-    const requestedAddOns: { id: string; quantity: number }[] = Array.isArray(body.addOns)
+    const requestedAddOns: { id: string; quantity: number; optionId: string | null }[] = Array.isArray(body.addOns)
       ? body.addOns
-          .map((a: any) => ({ id: String(a?.id ?? ''), quantity: parseInt(a?.quantity, 10) || 0 }))
+          .map((a: any) => ({
+            id: String(a?.id ?? ''),
+            quantity: parseInt(a?.quantity, 10) || 0,
+            optionId: a?.optionId ? String(a.optionId) : null,
+          }))
           .filter((a: { id: string; quantity: number }) => a.id && a.quantity > 0)
       : [];
 
@@ -66,7 +70,24 @@ export async function POST(request: Request) {
       if (!addOn) {
         return NextResponse.json({ error: 'One of the selected add-ons is no longer available.' }, { status: 400 });
       }
-      resolvedAddOns.push({ id: addOn.id, name: addOn.name, quantity: requested.quantity });
+      const addOnOptions = addOn.options ?? [];
+      let option = null;
+      if (addOnOptions.length > 0) {
+        if (!requested.optionId) {
+          return NextResponse.json({ error: `Please choose an option for ${addOn.name}.` }, { status: 400 });
+        }
+        option = addOnOptions.find((o) => o.id === requested.optionId);
+        if (!option) {
+          return NextResponse.json({ error: `That ${addOn.name} option is no longer available.` }, { status: 400 });
+        }
+      }
+      resolvedAddOns.push({
+        id: addOn.id,
+        name: addOn.name,
+        quantity: requested.quantity,
+        optionId: option?.id ?? null,
+        optionLabel: option?.label ?? null,
+      });
     }
 
     const reservations = await readReservations();

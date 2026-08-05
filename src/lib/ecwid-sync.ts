@@ -102,6 +102,10 @@ export async function syncEventToEcwid(event: NurseryEvent): Promise<NurseryEven
   const addOns: EventAddOn[] = [];
   for (const addOn of event.addOns ?? []) {
     const hasAddOnCapacity = typeof addOn.capacity === 'number' && addOn.capacity > 0;
+    const addOnOptions = (addOn.options ?? []).filter((o) => o.label.trim());
+    // A priced SELECT option is safe here (unlike on the ticket product):
+    // an add-on line item's quantity is the add-on count, so an ABSOLUTE
+    // modifier applies once per add-on unit, which is what we want.
     const addOnPayload: EcwidProductPayload = {
       name: `${event.title} — ${addOn.name}`,
       sku: `event-${event.id}-addon-${addOn.id}`,
@@ -110,6 +114,20 @@ export async function syncEventToEcwid(event: NurseryEvent): Promise<NurseryEven
       unlimited: !hasAddOnCapacity,
       isShippingRequired: false,
       ...(hasAddOnCapacity ? { quantity: addOn.capacity as number } : {}),
+      ...(addOnOptions.length > 0
+        ? {
+            options: [{
+              type: 'SELECT' as const,
+              name: addOn.optionLabel?.trim() || 'Option',
+              required: true,
+              choices: addOnOptions.map((option) => ({
+                text: option.label.trim(),
+                priceModifier: option.price ?? 0,
+                priceModifierType: 'ABSOLUTE' as const,
+              })),
+            }],
+          }
+        : {}),
     };
     const addOnEcwidId = await upsertEcwidProduct(addOnPayload, addOn.ecwidProductId);
     addOns.push({ ...addOn, ecwidProductId: addOnEcwidId });

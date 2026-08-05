@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Calendar, Leaf, Info } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { readEvents } from '@/lib/events-store';
+import { readPosts, sortPosts } from '@/lib/posts-store';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +14,13 @@ export default async function HomePage() {
     events = (await readEvents()).slice(0, 4); // Only show top 4
   } catch (e) {
     console.error("Could not load data", e);
+  }
+
+  let posts: Awaited<ReturnType<typeof readPosts>> = [];
+  try {
+    posts = sortPosts(await readPosts()).filter(p => p.published !== false).slice(0, 3);
+  } catch (e) {
+    console.error("Could not load posts", e);
   }
 
   return (
@@ -36,10 +44,10 @@ export default async function HomePage() {
         <div className="relative z-20 text-center px-6 max-w-4xl drop-shadow-xl">
           <span className="text-nursery-ochre font-bold tracking-[0.2em] uppercase mb-4 block animate-fade-in drop-shadow-md">Established 1975</span>
           <h1 className="text-6xl md:text-8xl text-nursery-ivory font-serif mb-8 leading-[1.1] animate-slide-up text-shadow-sm">
-            Where Gulf Coast <br /> <span className="italic">Gardens Begin</span>
+            Jimbo’s <span className="italic">Nursery</span>
           </h1>
           <p className="text-xl text-white mb-10 max-w-2xl mx-auto font-medium leading-relaxed drop-shadow-md">
-            Shop beautiful plants, plan your landscape, and join hands-on workshops focused on Gulf Coast gardeners.
+            Growing Gulf Coast gardens since 1975
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <Link href="/whats-new" className="bg-nursery-terracotta text-nursery-ivory px-10 py-4 rounded-full text-lg font-medium hover:scale-105 transition-transform shadow-lg">
@@ -77,8 +85,8 @@ export default async function HomePage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
             <div className="max-w-xl">
-              <h2 className="text-5xl text-nursery-midnight mb-6 leading-tight">Professional Services <br /> for Every Vision</h2>
-              <p className="text-lg text-nursery-midnight/70">From unique plants to landscape projects, Jimbo's helps you grow a garden that's beautiful, practical, and made for our Gulf Coast climate.</p>
+              <h2 className="text-5xl text-nursery-midnight mb-6 leading-tight">Grow With <br /> Jimbo’s</h2>
+              <p className="text-lg text-nursery-midnight/70">Discover unique plants, personalized landscaping, and hands-on workshops designed to help your garden grow!</p>
             </div>
             <div className="flex gap-4">
               <div className="w-16 h-16 rounded-full border border-nursery-sage/30 flex items-center justify-center text-nursery-sage">01</div>
@@ -89,9 +97,9 @@ export default async function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { title: 'Garden Center', desc: 'Hand-picked plants for Gulf Coast gardens, from natives and tropicals to cactus, succulents, and seasonal favorites.', icon: Leaf, link: "/whats-new" },
+              { title: 'Garden Center', desc: 'Hand-picked plants for Gulf Coast gardens, from natives and tropicals to cactus, succulents, and seasonal favorites.', icon: Leaf, link: "/about#greenhouses" },
               { title: 'Landscaping', desc: 'Full-service design and installation to help bring your landscape vision to life.', icon: Info, link: "/landscaping" },
-              { title: 'Private Workshops', desc: 'Fun, hands-on workshops for kids and adults to get creative, learn about plants, and get their hands dirty.', icon: Calendar, link: "/events" },
+              { title: 'Garden Workshops', desc: 'Fun, hands-on workshops for kids and adults to get creative, learn about plants, and get their hands dirty.', icon: Calendar, link: "/events" },
             ].map((service, i) => (
               <div key={i} className="group p-10 bg-white border border-nursery-sage/10 rounded-2xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
                 <service.icon className="w-12 h-12 text-nursery-terracotta mb-8 group-hover:scale-110 transition-transform" />
@@ -143,7 +151,7 @@ export default async function HomePage() {
       </div>
 
 
-      {/* The Living Legacy: Monarchs & Native Plants */}
+      {/* The Living Legacy: Monarchs & About Us */}
       <section className="py-32 bg-nursery-midnight text-nursery-ivory overflow-hidden relative">
          {/* Artistic Texas Landscape Motif */}
          <div className="absolute inset-0 pointer-events-none">
@@ -206,24 +214,20 @@ export default async function HomePage() {
                </div>
             </div>
 
-            <div className="space-y-12">
-               <div>
-                  <h2 className="text-5xl font-serif mb-8 leading-tight">4 Benefits of <span className="italic text-nursery-sage">Native Plants</span></h2>
-               </div>
+            <div className="space-y-8">
+               <span className="text-nursery-sage font-bold tracking-[0.3em] uppercase text-xs block">About Us</span>
+               <h2 className="text-5xl font-serif leading-tight">Family-owned, <span className="italic text-nursery-sage">Gulf Coast grown</span></h2>
 
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {[
-                     { t: "Water Resilience", d: "Deep root systems naturally adapted to the Texas heat, requiring significantly less supplemental irrigation." },
-                     { t: "Biodiversity", d: "Creating vital corridors for local pollinators, birds, and beneficial insects to thrive." },
-                     { t: "No Chemicals", d: "Evolutionary resistance to local pests eliminates the need for harsh synthetic fertilizers and pesticides." },
-                     { t: "Year-Round Art", d: "Dramatic textures and seasonal shifts that celebrate the authentic beauty of our local landscape." }
-                  ].map((benefit, i) => (
-                     <div key={i} className="p-8 border border-nursery-ivory/10 rounded-3xl hover:bg-nursery-ivory/5 transition-all">
-                        <h4 className="text-xl font-serif text-nursery-sage mb-3">{benefit.t}</h4>
-                        <p className="text-sm text-nursery-ivory/60 leading-relaxed">{benefit.d}</p>
-                     </div>
-                  ))}
-               </div>
+               <p className="text-lg text-nursery-ivory/70 leading-relaxed">
+                  Jimbo’s Nursery is a second-generation, family-owned garden center that’s served Santa Fe and
+                  Galveston County for more than 50 years. Across five greenhouses, we grow everything from native
+                  perennials to one of the largest bromeliad collections in Texas, with a knowledgeable team on
+                  hand to help you find what will actually thrive in a Gulf Coast garden.
+               </p>
+
+               <Link href="/about" className="inline-block bg-nursery-terracotta text-nursery-ivory px-10 py-4 rounded-full font-medium hover:scale-105 transition-transform shadow-lg">
+                  Learn More
+               </Link>
             </div>
          </div>
       </section>
@@ -233,27 +237,23 @@ export default async function HomePage() {
          <div className="max-w-7xl mx-auto px-6">
             <div className="flex justify-between items-end mb-16">
                <div>
-                  <span className="text-nursery-terracotta font-bold tracking-[0.4em] uppercase text-xs mb-4 block">Garden Wisdom</span>
+                  <span className="text-nursery-terracotta font-bold tracking-[0.4em] uppercase text-xs mb-4 block">Learn about New Plants</span>
                   <h2 className="text-5xl font-serif text-nursery-midnight">What’s New at the Nursery</h2>
                </div>
                <Link href="/about" className="text-nursery-midnight/60 font-medium border-b border-nursery-midnight/20 pb-1 hover:text-nursery-terracotta hover:border-nursery-terracotta transition-all">
-                  View All Knowledge
+                  See More
                </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-               {[
-                  { t: "Fruit Trees & Berries", d: "Joanne Woolsey • April 24", p: "Check out new blueberries, blackberries, citrus & more arriving just in time for spring planting.", img: "/images/event_propagation.jpg", link: "/whats-new" },
-                  { t: "What’s New at Jimbo’s", d: "Joanne Woolsey • April 22", p: "Ferns, native perennials, and shade loving plants have arrived. Explore our 3 greenhouses for fresh inspiration.", img: "/images/event_terrarium.jpg", link: "/whats-new" },
-                  { t: "Spring Workshop Lineup", d: "Education Team • April 15", p: "A vibrant lineup of workshops designed for plant enthusiasts of all ages and skill levels.", img: "/images/event_lawn.jpg", link: "/events" }
-               ].map((post, i) => (
-                  <Link key={i} href={post.link} className="group block">
+               {posts.map((post) => (
+                  <Link key={post.id} href={`/field-notes/${post.id}`} className="group block">
                      <div className="aspect-[16/10] rounded-3xl overflow-hidden mb-8 relative border border-nursery-sage/10">
-                        <Image src={post.img} alt={post.t} fill className="object-cover group-hover:scale-105 transition-transform duration-700" unoptimized />
+                        <Image src={post.image} alt={post.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" unoptimized />
                      </div>
-                     <span className="text-xs font-bold text-nursery-terracotta/60 uppercase tracking-widest block mb-2">{post.d}</span>
-                     <h3 className="text-2xl font-serif text-nursery-midnight mb-4 group-hover:text-nursery-terracotta transition-colors">{post.t}</h3>
-                     <p className="text-nursery-midnight/50 text-sm leading-relaxed mb-6">{post.p}</p>
+                     <span className="text-xs font-bold text-nursery-terracotta/60 uppercase tracking-widest block mb-2">{post.author} • {post.date}</span>
+                     <h3 className="text-2xl font-serif text-nursery-midnight mb-4 group-hover:text-nursery-terracotta transition-colors">{post.title}</h3>
+                     <p className="text-nursery-midnight/50 text-sm leading-relaxed mb-6">{post.excerpt}</p>
                      <span className="font-bold text-sm border-b-2 border-nursery-midnight/10 pb-1 group-hover:border-nursery-terracotta transition-colors">Read Note</span>
                   </Link>
                ))}
@@ -333,7 +333,7 @@ export default async function HomePage() {
                <div className="flex gap-10 text-xs font-bold tracking-[0.3em] uppercase text-nursery-sage">
                   <a href="https://www.facebook.com/Jimbosnursery1975" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Facebook</a>
                   <a href="https://www.instagram.com/jimbosnursery" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram</a>
-                  <a href={`mailto:jimbosnursery75@gmail.com?subject=${encodeURIComponent("General Information Request – Jimbo's Nursery")}&body=${encodeURIComponent("Hello,\n\nI'm reaching out to request information about Jimbo's Nursery and the products and services you offer.\n\nI'm interested in learning more about what you have available and would appreciate any details you can share regarding your current inventory, landscaping services, or upcoming events.\n\nPlease feel free to contact me at your earliest convenience.\n\nThank you,\n[Your Name]\n[Your Phone Number]")}`} className="hover:text-white transition-colors">Contact Us</a>
+                  <a href={`mailto:jimbosnursery75@gmail.com?subject=${encodeURIComponent("General Information Request – Jimbo's Nursery")}`} className="hover:text-white transition-colors">Contact Us</a>
                </div>
             </div>
 

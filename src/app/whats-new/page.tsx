@@ -1,10 +1,11 @@
-'use client';
-
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Leaf, ArrowLeft } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import { readPosts, sortPosts } from '@/lib/posts-store';
+
+export const dynamic = 'force-dynamic';
 
 const plants = [
   {
@@ -43,7 +44,14 @@ const tagColors: Record<string, string> = {
   'Gulf Coast Favorite': 'bg-nursery-ochre/20 text-nursery-midnight',
 };
 
-export default function WhatsNewPage() {
+export default async function WhatsNewPage() {
+  let posts: Awaited<ReturnType<typeof readPosts>> = [];
+  try {
+    posts = sortPosts(await readPosts()).filter((p) => p.published !== false);
+  } catch (e) {
+    console.error('Could not load posts', e);
+  }
+
   return (
     <div className="min-h-screen bg-nursery-ivory selection:bg-nursery-terracotta/20">
       <Navbar />
@@ -71,6 +79,33 @@ export default function WhatsNewPage() {
             </p>
           </div>
         </section>
+
+        {/* Posts */}
+        {posts.length > 0 && (
+          <section className="py-24 bg-white border-b border-nursery-sage/10">
+            <div className="max-w-7xl mx-auto px-12">
+              <div className="mb-16">
+                <span className="text-nursery-terracotta font-bold tracking-[0.4em] uppercase text-xs mb-4 block">Garden Wisdom</span>
+                <h2 className="text-4xl font-serif text-nursery-midnight mb-2">Latest Posts</h2>
+                <div className="w-16 h-[2px] bg-nursery-terracotta" />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                {posts.map((post) => (
+                  <Link key={post.id} href={`/field-notes/${post.id}`} className="group block">
+                    <div className="aspect-[16/10] rounded-3xl overflow-hidden mb-8 relative border border-nursery-sage/10">
+                      <Image src={post.image} alt={post.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" unoptimized />
+                    </div>
+                    <span className="text-xs font-bold text-nursery-terracotta/60 uppercase tracking-widest block mb-2">{post.author} • {post.date}</span>
+                    <h3 className="text-2xl font-serif text-nursery-midnight mb-4 group-hover:text-nursery-terracotta transition-colors">{post.title}</h3>
+                    <p className="text-nursery-midnight/50 text-sm leading-relaxed mb-6">{post.excerpt}</p>
+                    <span className="font-bold text-sm border-b-2 border-nursery-midnight/10 pb-1 group-hover:border-nursery-terracotta transition-colors">Read Note</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Plant Grid */}
         <section className="py-24 bg-nursery-ivory">

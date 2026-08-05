@@ -79,7 +79,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="mt-40 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+        <section id="greenhouses" className="scroll-mt-28 mt-40 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
            <div className="bg-gradient-to-br from-nursery-midnight via-[#15251c] to-[#0a140f] p-16 rounded-3xl text-nursery-ivory shadow-2xl border border-[#2a4034] relative overflow-hidden group">
               {/* Artistic Background Flourish */}
               <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity duration-1000">

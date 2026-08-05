@@ -6,6 +6,8 @@ export interface ReservedAddOn {
   id: string;
   name: string;
   quantity: number;
+  optionId?: string | null;
+  optionLabel?: string | null;
 }
 
 export interface EventReservation {

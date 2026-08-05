@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, CheckCircle, Loader2 } from 'lucide-react';
+import { X, CheckCircle, Loader2, ShoppingCart } from 'lucide-react';
 import { addProductToCart, goToEcwidCheckout } from '@/lib/ecwid-client';
 
 interface TimeSlot {
@@ -10,12 +10,20 @@ interface TimeSlot {
   capacity?: number | null;
 }
 
+interface AddOnOption {
+  id: string;
+  label: string;
+  price?: number | null;
+}
+
 interface AddOn {
   id: string;
   name: string;
   capacity?: number | null;
   price?: number | null;
   ecwidProductId?: number | null;
+  optionLabel?: string;
+  options?: AddOnOption[];
 }
 
 interface ReserveSpotButtonProps {
@@ -48,7 +56,9 @@ export default function ReserveSpotButton({
   const [guests, setGuests] = useState(1);
   const [selectedSlotId, setSelectedSlotId] = useState('');
   const [addOnQuantities, setAddOnQuantities] = useState<Record<string, number>>({});
+  const [addOnOptionIds, setAddOnOptionIds] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<{ count: number; slotLabel?: string | null; addOns: { name: string; quantity: number }[] } | null>(null);
 
@@ -77,11 +87,22 @@ export default function ReserveSpotButton({
   const slotMax = selectedSlot?.slotRemaining ?? null;
   const maxGuests = Math.max(1, Math.min(hasLimit ? remaining! : 20, slotMax ?? 20));
 
+  // A chosen dropdown option adds its price on top of the add-on's base price,
+  // matching the ABSOLUTE priceModifier sent to Ecwid in ecwid-sync.ts.
+  function addOnUnitPrice(addOn: AddOn): number {
+    const chosen = (addOn.options ?? []).find((o) => o.id === addOnOptionIds[addOn.id]);
+    return (addOn.price ?? 0) + (chosen?.price ?? 0);
+  }
+
   const addOnsTotal = addOnsWithAvailability.reduce(
-    (sum, addOn) => sum + (addOnQuantities[addOn.id] ?? 0) * (addOn.price ?? 0),
+    (sum, addOn) => sum + (addOnQuantities[addOn.id] ?? 0) * addOnUnitPrice(addOn),
     0,
   );
   const total = (ticketPrice ?? 0) * guests + addOnsTotal;
+
+  const missingOption = addOnsWithAvailability.find(
+    (addOn) => (addOnQuantities[addOn.id] ?? 0) > 0 && (addOn.options?.length ?? 0) > 0 && !addOnOptionIds[addOn.id],
+  );
 
   const reset = () => {
     setOpen(false);
@@ -90,6 +111,8 @@ export default function ReserveSpotButton({
     setGuests(1);
     setSelectedSlotId('');
     setAddOnQuantities({});
+    setAddOnOptionIds({});
+    setAddedToCart(false);
     setError('');
     setResult(null);
   };
@@ -98,21 +121,59 @@ export default function ReserveSpotButton({
     setAddOnQuantities((prev) => ({ ...prev, [id]: quantity }));
   }
 
+  function setAddOnOption(id: string, optionId: string) {
+    setAddOnOptionIds((prev) => ({ ...prev, [id]: optionId }));
+  }
+
+  // Pushes the ticket and every selected add-on into the Ecwid cart. Shared by
+  // "Add to Cart & Keep Shopping" and "Continue to Checkout" so both paths add
+  // exactly the same line items.
+  async function addEverythingToCart() {
+    const options = hasSlots && selectedSlot ? { 'Time Slot': selectedSlot.label } : undefined;
+    await addProductToCart(ecwidProductId as number, guests, options);
+    for (const addOn of addOnsWithAvailability) {
+      const quantity = addOnQuantities[addOn.id] ?? 0;
+      if (quantity > 0 && addOn.ecwidProductId) {
+        const chosen = (addOn.options ?? []).find((o) => o.id === addOnOptionIds[addOn.id]);
+        const addOnOptions = chosen ? { [addOn.optionLabel?.trim() || 'Option']: chosen.label } : undefined;
+        await addProductToCart(addOn.ecwidProductId, quantity, addOnOptions);
+      }
+    }
+  }
+
+  async function handleAddToCart() {
+    if (missingOption) {
+      setError(`Please choose an option for ${missingOption.name}.`);
+      return;
+    }
+    setSubmitting(true);
+    setError('');
+    try {
+      await addEverythingToCart();
+      setAddedToCart(true);
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : 'Could not add these items to your cart.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
     setError('');
 
+    if (missingOption) {
+      setError(`Please choose an option for ${missingOption.name}.`);
+      setSubmitting(false);
+      return;
+    }
+
     if (paid) {
       try {
-        const options = hasSlots && selectedSlot ? { 'Time Slot': selectedSlot.label } : undefined;
-        await addProductToCart(ecwidProductId as number, guests, options);
-        for (const addOn of addOnsWithAvailability) {
-          const quantity = addOnQuantities[addOn.id] ?? 0;
-          if (quantity > 0 && addOn.ecwidProductId) {
-            await addProductToCart(addOn.ecwidProductId, quantity);
-          }
-        }
+        // Already in the cart from "Add to Cart & Keep Shopping" — don't double-add.
+        if (!addedToCart) await addEverythingToCart();
         await goToEcwidCheckout();
         reset();
       } catch (err) {
@@ -127,7 +188,7 @@ export default function ReserveSpotButton({
     try {
       const selectedAddOns = Object.entries(addOnQuantities)
         .filter(([, quantity]) => quantity > 0)
-        .map(([id, quantity]) => ({ id, quantity }));
+        .map(([id, quantity]) => ({ id, quantity, optionId: addOnOptionIds[id] ?? null }));
 
       const res = await fetch('/api/reservations', {
         method: 'POST',
@@ -146,10 +207,14 @@ export default function ReserveSpotButton({
       setResult({
         count: data.count,
         slotLabel: selectedSlot?.label,
-        addOns: selectedAddOns.map((a) => ({
-          name: addOns.find((ao) => ao.id === a.id)?.name ?? '',
-          quantity: a.quantity,
-        })),
+        addOns: selectedAddOns.map((a) => {
+          const definition = addOns.find((ao) => ao.id === a.id);
+          const choice = (definition?.options ?? []).find((o) => o.id === a.optionId);
+          return {
+            name: choice ? `${definition?.name ?? ''} (${choice.label})` : definition?.name ?? '',
+            quantity: a.quantity,
+          };
+        }),
       });
     } catch (err) {
       console.error(err);
@@ -290,26 +355,50 @@ export default function ReserveSpotButton({
                         {addOnsWithAvailability.map((addOn) => {
                           const qty = addOnQuantities[addOn.id] ?? 0;
                           const addOnMax = addOn.addOnRemaining ?? 20;
+                          const choices = addOn.options ?? [];
+                          const unitPrice = addOnUnitPrice(addOn);
                           return (
-                            <div key={addOn.id} className="flex items-center justify-between gap-3 rounded-xl border border-nursery-sage/20 px-4 py-2.5">
-                              <div>
-                                <p className="text-sm font-medium text-nursery-midnight">
-                                  {addOn.name}
-                                  {paid && addOn.price ? <span className="text-nursery-midnight/50"> (+${addOn.price.toFixed(2)} each)</span> : null}
-                                </p>
-                                {addOn.addOnRemaining !== null && (
-                                  <p className="text-xs text-nursery-midnight/40">{addOn.full ? 'Sold out' : `${addOn.addOnRemaining} left`}</p>
-                                )}
+                            <div key={addOn.id} className="rounded-xl border border-nursery-sage/20 px-4 py-2.5">
+                              <div className="flex items-center justify-between gap-3">
+                                <div>
+                                  <p className="text-sm font-medium text-nursery-midnight">
+                                    {addOn.name}
+                                    {paid && unitPrice > 0 ? <span className="text-nursery-midnight/50"> (+${unitPrice.toFixed(2)} each)</span> : null}
+                                  </p>
+                                  {addOn.addOnRemaining !== null && (
+                                    <p className="text-xs text-nursery-midnight/40">{addOn.full ? 'Sold out' : `${addOn.addOnRemaining} left`}</p>
+                                  )}
+                                </div>
+                                <input
+                                  type="number"
+                                  min={0}
+                                  max={addOnMax}
+                                  disabled={addOn.full}
+                                  value={qty}
+                                  aria-label={`Quantity for ${addOn.name}`}
+                                  onChange={(e) => setAddOnQuantity(addOn.id, Math.max(0, Math.min(addOnMax, Number(e.target.value))))}
+                                  className="h-9 w-16 rounded-lg border border-nursery-sage/30 px-2 text-center text-sm outline-none focus:border-nursery-terracotta/50 focus:ring-2 focus:ring-nursery-terracotta/20 disabled:opacity-40"
+                                />
                               </div>
-                              <input
-                                type="number"
-                                min={0}
-                                max={addOnMax}
-                                disabled={addOn.full}
-                                value={qty}
-                                onChange={(e) => setAddOnQuantity(addOn.id, Math.max(0, Math.min(addOnMax, Number(e.target.value))))}
-                                className="h-9 w-16 rounded-lg border border-nursery-sage/30 px-2 text-center text-sm outline-none focus:border-nursery-terracotta/50 focus:ring-2 focus:ring-nursery-terracotta/20 disabled:opacity-40"
-                              />
+                              {choices.length > 0 && (
+                                <select
+                                  value={addOnOptionIds[addOn.id] ?? ''}
+                                  disabled={addOn.full}
+                                  aria-label={`${addOn.optionLabel?.trim() || 'Option'} for ${addOn.name}`}
+                                  onChange={(e) => setAddOnOption(addOn.id, e.target.value)}
+                                  className="mt-2 h-10 w-full rounded-lg border border-nursery-sage/30 px-3 text-sm outline-none focus:border-nursery-terracotta/50 focus:ring-2 focus:ring-nursery-terracotta/20 disabled:opacity-40"
+                                >
+                                  <option value="" disabled>
+                                    Select {addOn.optionLabel?.trim() || 'an option'}
+                                  </option>
+                                  {choices.map((choice) => (
+                                    <option key={choice.id} value={choice.id}>
+                                      {choice.label}
+                                      {paid && choice.price ? ` (+$${choice.price.toFixed(2)})` : ''}
+                                    </option>
+                                  ))}
+                                </select>
+                              )}
                             </div>
                           );
                         })}
@@ -326,6 +415,37 @@ export default function ReserveSpotButton({
 
                   {error && <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>}
 
+                  {addedToCart && (
+                    <p className="flex items-start gap-2 rounded-xl border border-nursery-sage/30 bg-nursery-sage/10 px-4 py-3 text-sm text-nursery-midnight/70">
+                      <ShoppingCart className="mt-0.5 h-4 w-4 shrink-0 text-nursery-sage" />
+                      <span>
+                        Added to your cart. Keep browsing and check out when you&apos;re ready — or head to checkout now.
+                      </span>
+                    </p>
+                  )}
+
+                  {paid && !addedToCart && (
+                    <button
+                      type="button"
+                      onClick={handleAddToCart}
+                      disabled={submitting}
+                      className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-nursery-midnight/20 bg-white font-semibold text-nursery-midnight transition-colors hover:border-nursery-terracotta hover:text-nursery-terracotta disabled:opacity-50"
+                    >
+                      {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingCart className="h-4 w-4" />}
+                      Add to Cart &amp; Keep Shopping
+                    </button>
+                  )}
+
+                  {paid && addedToCart && (
+                    <button
+                      type="button"
+                      onClick={reset}
+                      className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-nursery-midnight/20 bg-white font-semibold text-nursery-midnight transition-colors hover:border-nursery-terracotta hover:text-nursery-terracotta"
+                    >
+                      Keep Shopping
+                    </button>
+                  )}
+
                   <button
                     type="submit"
                     disabled={submitting}
@@ -336,7 +456,7 @@ export default function ReserveSpotButton({
                         <Loader2 className="h-4 w-4 animate-spin" /> {paid ? 'Starting checkout…' : 'Reserving…'}
                       </>
                     ) : paid ? (
-                      'Continue to Checkout'
+                      addedToCart ? 'Go to Checkout' : 'Continue to Checkout'
                     ) : (
                       'Confirm My Spot'
                     )}

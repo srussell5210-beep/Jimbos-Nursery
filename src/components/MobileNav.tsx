@@ -36,15 +36,13 @@ export default function MobileNav() {
             </div>
             <nav className="flex flex-col gap-2 px-6 pb-10">
               {[
-                { label: "Services", href: "/#services" },
-                { label: "Events", href: "/events" },
-                { label: "Our History", href: "/about" },
-                { label: "Landscaping", href: "/landscaping" },
-                { label: "Plant Rentals", href: "/rentals" },
-                { label: "Wholesale", href: "/wholesale" },
                 { label: "What's New", href: "/whats-new" },
-                { label: "Shop", href: "/shop" },
+                { label: "Events", href: "/events" },
                 { label: "Gift Cards", href: "/gift-cards" },
+                { label: "Landscaping", href: "/landscaping" },
+                { label: "Wholesale", href: "/wholesale" },
+                { label: "Plant Rentals", href: "/rentals" },
+                { label: "Our History", href: "/about" },
               ].map((item) => (
                 <Link
                   key={item.href}

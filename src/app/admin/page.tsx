@@ -6,11 +6,13 @@ import Image from 'next/image';
 import { CheckCircle2, ExternalLink, Link2, Pencil, Plus, RefreshCw, Trash2, Unplug, Upload, Users, X } from 'lucide-react';
 import { parseEventPrice } from '@/lib/event-price';
 import { formatEventDuration, formatEventTimeRange } from '@/lib/event-time';
+import PostsManager from '@/components/admin/PostsManager';
 
 const EVENT_CATEGORIES = ['Community Event', 'Kids', 'Wellness', 'Workshop'];
 
 interface FormTimeSlot { id: string; label: string; capacity: string }
-interface FormAddOn { id: string; name: string; capacity: string; price: string }
+interface FormAddOnOption { id: string; label: string; price: string }
+interface FormAddOn { id: string; name: string; capacity: string; price: string; optionLabel: string; options: FormAddOnOption[] }
 
 const EMPTY_EVENT = {
   title: "", date: "", startTime: "", endTime: "", location: "", description: "", price: "", type: "",
@@ -75,6 +77,7 @@ export default function AdminDashboard() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const [cloverModalOpen, setCloverModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'events' | 'posts'>('events');
 
   useEffect(() => {
     fetchData();
@@ -189,6 +192,14 @@ export default function AdminDashboard() {
           name: a.name.trim(),
           capacity: a.capacity.trim() ? parseInt(a.capacity, 10) : null,
           price: a.price.trim() ? parseFloat(a.price) : null,
+          optionLabel: a.optionLabel.trim(),
+          options: a.options
+            .filter(o => o.label.trim())
+            .map(o => ({
+              id: o.id,
+              label: o.label.trim(),
+              price: o.price.trim() ? parseFloat(o.price) : null,
+            })),
         })),
     };
     try {
@@ -221,7 +232,14 @@ export default function AdminDashboard() {
       images: ev.images ?? [],
       capacity: ev.capacity ? String(ev.capacity) : "",
       timeSlots: (ev.timeSlots ?? []).map((s: any) => ({ id: s.id, label: s.label ?? "", capacity: s.capacity ? String(s.capacity) : "" })),
-      addOns: (ev.addOns ?? []).map((a: any) => ({ id: a.id, name: a.name ?? "", capacity: a.capacity ? String(a.capacity) : "", price: a.price ? String(a.price) : "" })),
+      addOns: (ev.addOns ?? []).map((a: any) => ({
+        id: a.id,
+        name: a.name ?? "",
+        capacity: a.capacity ? String(a.capacity) : "",
+        price: a.price ? String(a.price) : "",
+        optionLabel: a.optionLabel ?? "",
+        options: (a.options ?? []).map((o: any) => ({ id: o.id, label: o.label ?? "", price: o.price != null ? String(o.price) : "" })),
+      })),
     });
     setEventDateInput(parseEventDateToISO(ev.date ?? ""));
     setImageError("");
@@ -244,10 +262,10 @@ export default function AdminDashboard() {
   };
 
   const addAddOn = () => {
-    setNewEvent(prev => ({ ...prev, addOns: [...prev.addOns, { id: crypto.randomUUID(), name: "", capacity: "", price: "" }] }));
+    setNewEvent(prev => ({ ...prev, addOns: [...prev.addOns, { id: crypto.randomUUID(), name: "", capacity: "", price: "", optionLabel: "", options: [] }] }));
   };
 
-  const updateAddOn = (id: string, field: 'name' | 'capacity' | 'price', value: string) => {
+  const updateAddOn = (id: string, field: 'name' | 'capacity' | 'price' | 'optionLabel', value: string) => {
     setNewEvent(prev => ({
       ...prev,
       addOns: prev.addOns.map(a => a.id === id ? { ...a, [field]: value } : a),
@@ -256,6 +274,33 @@ export default function AdminDashboard() {
 
   const removeAddOn = (id: string) => {
     setNewEvent(prev => ({ ...prev, addOns: prev.addOns.filter(a => a.id !== id) }));
+  };
+
+  const addAddOnOption = (addOnId: string) => {
+    setNewEvent(prev => ({
+      ...prev,
+      addOns: prev.addOns.map(a => a.id === addOnId
+        ? { ...a, options: [...a.options, { id: crypto.randomUUID(), label: "", price: "" }] }
+        : a),
+    }));
+  };
+
+  const updateAddOnOption = (addOnId: string, optionId: string, field: 'label' | 'price', value: string) => {
+    setNewEvent(prev => ({
+      ...prev,
+      addOns: prev.addOns.map(a => a.id === addOnId
+        ? { ...a, options: a.options.map(o => o.id === optionId ? { ...o, [field]: value } : o) }
+        : a),
+    }));
+  };
+
+  const removeAddOnOption = (addOnId: string, optionId: string) => {
+    setNewEvent(prev => ({
+      ...prev,
+      addOns: prev.addOns.map(a => a.id === addOnId
+        ? { ...a, options: a.options.filter(o => o.id !== optionId) }
+        : a),
+    }));
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -355,7 +400,29 @@ export default function AdminDashboard() {
          </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-6 py-12 flex gap-12 flex-col lg:flex-row">
+      <main className="max-w-7xl mx-auto px-6 py-12">
+        {/* Section Tabs */}
+        <div role="tablist" aria-label="Admin sections" className="flex gap-1 mb-10 border-b border-nursery-sage/20">
+           {([['events', 'Events'], ['posts', 'Posts']] as const).map(([tab, label]) => (
+              <button
+                 key={tab}
+                 type="button"
+                 role="tab"
+                 aria-selected={activeTab === tab}
+                 onClick={() => setActiveTab(tab)}
+                 className={`px-6 py-3 text-sm font-bold uppercase tracking-widest -mb-px border-b-2 transition-colors ${
+                    activeTab === tab
+                      ? 'border-nursery-terracotta text-nursery-midnight'
+                      : 'border-transparent text-nursery-midnight/45 hover:text-nursery-midnight'
+                 }`}
+              >
+                 {label}
+              </button>
+           ))}
+        </div>
+
+        {activeTab === 'posts' ? <PostsManager /> : (
+        <div className="flex gap-12 flex-col lg:flex-row">
         {/* Left Col: Event List */}
         <div className="flex-1">
            <h2 className="text-2xl font-serif pb-2 border-b-2 border-nursery-terracotta text-nursery-midnight mb-8">
@@ -582,23 +649,60 @@ export default function AdminDashboard() {
                     <label className="block text-xs uppercase tracking-widest text-nursery-midnight/60 mb-1">
                        Add-Ons <span className="normal-case text-nursery-midnight/30">(optional)</span>
                     </label>
-                    <p className="text-[11px] text-nursery-midnight/40 mb-2">Extras guests can add, like additional bingo cards. Each can have its own quantity limit and price — priced add-ons are charged through Ecwid checkout alongside the ticket.</p>
-                    <div className="space-y-2">
+                    <p className="text-[11px] text-nursery-midnight/40 mb-2">Extra products guests can buy, like a plant pot or an extra bingo card. Each can have its own quantity limit and price — priced add-ons are charged through Ecwid checkout alongside the ticket.</p>
+                    <div className="space-y-3">
                        {newEvent.addOns.map(addOn => (
-                          <div key={addOn.id} className="flex gap-2 items-center">
-                             <input type="text" placeholder="e.g. Extra Bingo Card"
-                                    className="flex-1 min-w-0 border border-nursery-sage/30 rounded-lg p-2.5 bg-nursery-ivory/30 text-sm focus:outline-none focus:border-nursery-terracotta"
-                                    value={addOn.name} onChange={e => updateAddOn(addOn.id, 'name', e.target.value)} />
-                             <input type="number" min={1} placeholder="Qty"
-                                    className="w-16 border border-nursery-sage/30 rounded-lg p-2.5 bg-nursery-ivory/30 text-sm focus:outline-none focus:border-nursery-terracotta"
-                                    value={addOn.capacity} onChange={e => updateAddOn(addOn.id, 'capacity', e.target.value)} />
-                             <input type="number" min={0} step="0.01" placeholder="Price"
-                                    className="w-20 border border-nursery-sage/30 rounded-lg p-2.5 bg-nursery-ivory/30 text-sm focus:outline-none focus:border-nursery-terracotta"
-                                    value={addOn.price} onChange={e => updateAddOn(addOn.id, 'price', e.target.value)} />
-                             <button type="button" onClick={() => removeAddOn(addOn.id)} aria-label="Remove add-on"
-                                     className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-nursery-midnight/40 hover:bg-red-50 hover:text-red-500 transition-colors">
-                                <Trash2 className="w-4 h-4" />
-                             </button>
+                          <div key={addOn.id} className="rounded-xl border border-nursery-sage/25 bg-nursery-ivory/20 p-3">
+                             <div className="flex gap-2 items-center">
+                                <input type="text" placeholder="e.g. Extra Bingo Card"
+                                       className="flex-1 min-w-0 border border-nursery-sage/30 rounded-lg p-2.5 bg-white text-sm focus:outline-none focus:border-nursery-terracotta"
+                                       value={addOn.name} onChange={e => updateAddOn(addOn.id, 'name', e.target.value)} />
+                                <input type="number" min={1} placeholder="Qty"
+                                       className="w-16 border border-nursery-sage/30 rounded-lg p-2.5 bg-white text-sm focus:outline-none focus:border-nursery-terracotta"
+                                       value={addOn.capacity} onChange={e => updateAddOn(addOn.id, 'capacity', e.target.value)} />
+                                <input type="number" min={0} step="0.01" placeholder="Price"
+                                       className="w-20 border border-nursery-sage/30 rounded-lg p-2.5 bg-white text-sm focus:outline-none focus:border-nursery-terracotta"
+                                       value={addOn.price} onChange={e => updateAddOn(addOn.id, 'price', e.target.value)} />
+                                <button type="button" onClick={() => removeAddOn(addOn.id)} aria-label="Remove add-on"
+                                        className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center text-nursery-midnight/40 hover:bg-red-50 hover:text-red-500 transition-colors">
+                                   <Trash2 className="w-4 h-4" />
+                                </button>
+                             </div>
+
+                             <div className="mt-3 pl-1 border-l-2 border-nursery-sage/20">
+                                <div className="pl-3">
+                                   <input type="text" placeholder="Dropdown label — e.g. Size, Color (optional)"
+                                          className="w-full border border-nursery-sage/25 rounded-lg p-2 bg-white text-xs focus:outline-none focus:border-nursery-terracotta"
+                                          value={addOn.optionLabel} onChange={e => updateAddOn(addOn.id, 'optionLabel', e.target.value)} />
+                                   {addOn.options.length > 0 && (
+                                      <div className="mt-2 space-y-2">
+                                         {addOn.options.map(option => (
+                                            <div key={option.id} className="flex gap-2 items-center">
+                                               <input type="text" placeholder="Choice — e.g. Small"
+                                                      className="flex-1 min-w-0 border border-nursery-sage/25 rounded-lg p-2 bg-white text-xs focus:outline-none focus:border-nursery-terracotta"
+                                                      value={option.label} onChange={e => updateAddOnOption(addOn.id, option.id, 'label', e.target.value)} />
+                                               <input type="number" min={0} step="0.01" placeholder="+$"
+                                                      className="w-20 border border-nursery-sage/25 rounded-lg p-2 bg-white text-xs focus:outline-none focus:border-nursery-terracotta"
+                                                      value={option.price} onChange={e => updateAddOnOption(addOn.id, option.id, 'price', e.target.value)} />
+                                               <button type="button" onClick={() => removeAddOnOption(addOn.id, option.id)} aria-label="Remove option"
+                                                       className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-nursery-midnight/40 hover:bg-red-50 hover:text-red-500 transition-colors">
+                                                  <X className="w-3.5 h-3.5" />
+                                               </button>
+                                            </div>
+                                         ))}
+                                      </div>
+                                   )}
+                                   <button type="button" onClick={() => addAddOnOption(addOn.id)}
+                                           className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-bold text-nursery-terracotta hover:text-nursery-midnight transition-colors">
+                                      <Plus className="w-3 h-3" /> Add Dropdown Choice
+                                   </button>
+                                   {addOn.options.length > 0 && (
+                                      <p className="mt-1.5 text-[11px] text-nursery-midnight/40">
+                                         Guests pick one choice from a dropdown. Each choice&apos;s +$ is added to the add-on price above.
+                                      </p>
+                                   )}
+                                </div>
+                             </div>
                           </div>
                        ))}
                     </div>
@@ -621,6 +725,8 @@ export default function AdminDashboard() {
               </form>
            </div>
         </div>
+        </div>
+        )}
       </main>
 
       {cloverModalOpen && (

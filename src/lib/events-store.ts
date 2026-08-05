@@ -8,12 +8,24 @@ export interface EventTimeSlot {
   capacity?: number | null;
 }
 
+export interface EventAddOnOption {
+  id: string;
+  label: string;
+  // Added on top of the add-on's base price. Leave the base at 0 and set the
+  // full amount here to price each choice outright.
+  price?: number | null;
+}
+
 export interface EventAddOn {
   id: string;
   name: string;
   capacity?: number | null;
   price?: number | null;
   ecwidProductId?: number | null;
+  // When options are present the customer picks one from a dropdown.
+  // optionLabel names that dropdown (e.g. "Size").
+  optionLabel?: string;
+  options?: EventAddOnOption[];
 }
 
 export interface NurseryEvent {
