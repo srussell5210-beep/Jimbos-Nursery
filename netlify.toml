@@ -2,5 +2,10 @@
   command = "npm run build"
   publish = ".next"
 
+[build.environment]
+  # Netlify's default image ships Node 24, which is outside the range
+  # package.json declares (>=18.17 <23) and unsupported by Next 14.
+  NODE_VERSION = "20"
+
 [functions]
   included_files = ["prisma/dev.db"]
