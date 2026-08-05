@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "jimbos-nursery",
+      "runtimeExecutable": "/Users/samuelrussell/Desktop/Jimbos-Nursery/.runtime/node-v20.20.2-darwin-arm64/bin/node",
+      "runtimeArgs": ["/Users/samuelrussell/Desktop/Jimbos-Nursery/node_modules/next/dist/bin/next", "dev", "-p", "3002"],
+      "port": 3002,
+      "autoPort": false
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "monstera-deliciosa",
+    "name": "Monstera Deliciosa",
+    "category": "Indoor Tropicals",
+    "price": "$45",
+    "description": "The Swiss Cheese Plant is famous for its natural leaf holes. A stunning focal point for any bright room.",
+    "care": "Bright, indirect light. Water when top inch of soil is dry.",
+    "image": "/images/Monstera-Deliciosa.jpeg"
+  },
+  {
+    "id": "mexican-sycamore",
+    "name": "Mexican Sycamore",
+    "category": "Specimen Trees",
+    "price": "$120",
+    "description": "A fast-growing shade tree with beautiful silvery-white undersides on its leaves. Very hardy in Texas heat.",
+    "care": "Full sun. Low to moderate water once established.",
+    "image": "/images/Mexican-Sycamore.jpeg"
+  },
+  {
+    "id": "red-yucca",
+    "name": "Red Yucca",
+    "category": "Native Hardies",
+    "price": "$28",
+    "description": "Not a true yucca, but a tough-as-nails evergreen with striking coral-red flower spikes.",
+    "care": "Full sun. Extremely drought tolerant.",
+    "image": "/images/Red-Yucca.jpeg"
+  },
+  {
+    "id": "sago-palm",
+    "name": "Sago Palm",
+    "category": "Tropicals",
+    "price": "$65",
+    "description": "A slow-growing cycad that adds a prehistoric look to any landscape. Very drought tolerant.",
+    "care": "Partial sun. Well-drained soil.",
+    "image": "/images/Sago-Palm.jpeg"
+  }
+]

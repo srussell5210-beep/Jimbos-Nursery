@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #fdfbf7;
+  --foreground: #1a2f23;
+  --font-inter: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-playfair: Georgia, Cambria, "Times New Roman", serif;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-playfair), Georgia, serif;
+}
+
+@layer base {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+.timeline-vine {
+  position: relative;
+}
+
+.timeline-vine::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #8ba888;
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+.crm-ticker-mask {
+  overflow: hidden;
+  position: relative;
+}
+
+.crm-ticker-mask::before,
+.crm-ticker-mask::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 48px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.crm-ticker-mask::before {
+  left: 0;
+  background: linear-gradient(90deg, #f7f3ea, transparent);
+}
+
+.crm-ticker-mask::after {
+  right: 0;
+  background: linear-gradient(270deg, #f7f3ea, transparent);
+}
+
+.crm-ticker-track {
+  display: flex;
+  width: max-content;
+  gap: 12px;
+  padding: 12px;
+  animation: crm-ticker-scroll 34s linear infinite;
+}
+
+.crm-ticker-mask:hover .crm-ticker-track {
+  animation-play-state: paused;
+}
+
+.crm-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: max-content;
+  border: 1px solid rgba(139, 168, 136, 0.16);
+  border-radius: 10px;
+  background: #fff;
+  padding: 10px 12px;
+  box-shadow: 0 1px 2px rgba(26, 47, 35, 0.06);
+  font-size: 13px;
+}
+
+.crm-ticker-item--link {
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.crm-ticker-item--link:hover {
+  border-color: rgba(139, 168, 136, 0.45);
+  box-shadow: 0 2px 8px rgba(26, 47, 35, 0.12);
+}
+
+@keyframes crm-ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crm-ticker-track {
+    animation: none;
+    overflow-x: auto;
+    width: auto;
+  }
+}

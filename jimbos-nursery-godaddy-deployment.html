@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jimbo's Nursery — GoDaddy Deployment Guide</title>
+<style>
+  :root {
+    --midnight: #1a2b1e;
+    --midnight-dark: #0f1a12;
+    --sage: #8ba888;
+    --sage-light: #a8c4a6;
+    --terracotta: #c05d33;
+    --ivory: #f5f0e8;
+    --ivory-dim: #e8e2d8;
+    --ochre: #c9a84c;
+    --surface: #1e2e22;
+    --surface-raised: #243329;
+    --code-bg: #0d1f10;
+    --border: rgba(139,168,136,0.18);
+    --border-strong: rgba(139,168,136,0.35);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--midnight-dark);
+    color: var(--ivory);
+    line-height: 1.65;
+    font-size: 15px;
+  }
+
+  /* ── Header ── */
+  .doc-header {
+    background: linear-gradient(135deg, #0f1a12 0%, #1e2e22 60%, #243329 100%);
+    border-bottom: 1px solid var(--border-strong);
+    padding: 48px 0 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .doc-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 60%, rgba(192,93,51,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 40%, rgba(139,168,136,0.06) 0%, transparent 60%);
+  }
+  .doc-header-inner { position: relative; }
+  .doc-header .eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    margin-bottom: 12px;
+  }
+  .doc-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ivory);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .doc-header .subtitle {
+    margin-top: 10px;
+    font-size: 13px;
+    color: rgba(245,240,232,0.5);
+    letter-spacing: 0.04em;
+  }
+
+  /* ── Layout ── */
+  .wrapper {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 32px 80px;
+  }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin: 36px 0;
+  }
+  .toc-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 14px;
+  }
+  .toc ol {
+    list-style: none;
+    counter-reset: toc;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 24px;
+  }
+  .toc ol li {
+    counter-increment: toc;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .toc ol li::before {
+    content: counter(toc);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--terracotta);
+    background: rgba(192,93,51,0.12);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .toc a { color: rgba(245,240,232,0.75); text-decoration: none; }
+  .toc a:hover { color: var(--sage-light); }
+
+  /* ── Callout boxes ── */
+  .callout {
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 24px 0;
+    font-size: 13.5px;
+    line-height: 1.6;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .callout.warning {
+    background: rgba(192,93,51,0.1);
+    border: 1px solid rgba(192,93,51,0.3);
+    color: #f0c4aa;
+  }
+  .callout.info {
+    background: rgba(139,168,136,0.08);
+    border: 1px solid rgba(139,168,136,0.25);
+    color: rgba(245,240,232,0.8);
+  }
+  .callout .icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── Section headings ── */
+  .step-section {
+    margin-top: 48px;
+  }
+  .step-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .step-num {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    color: var(--terracotta);
+    background: rgba(192,93,51,0.12);
+    border: 1px solid rgba(192,93,51,0.25);
+    border-radius: 6px;
+    padding: 3px 9px;
+    text-transform: uppercase;
+  }
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ivory);
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin: 28px 0 12px;
+  }
+  p {
+    font-size: 14.5px;
+    color: rgba(245,240,232,0.82);
+    margin: 10px 0;
+    line-height: 1.7;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  /* ── Numbered instruction list ── */
+  ol.steps {
+    list-style: none;
+    counter-reset: steps;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 16px 0;
+  }
+  ol.steps li {
+    counter-increment: steps;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    font-size: 14px;
+    color: rgba(245,240,232,0.85);
+    line-height: 1.65;
+  }
+  ol.steps li::before {
+    content: counter(steps);
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--sage);
+    background: rgba(139,168,136,0.1);
+    border: 1px solid rgba(139,168,136,0.25);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── Tables ── */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  thead tr {
+    background: var(--surface);
+  }
+  thead th {
+    padding: 11px 16px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--sage);
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(139,168,136,0.04); }
+  tbody td {
+    padding: 10px 16px;
+    color: rgba(245,240,232,0.82);
+    vertical-align: top;
+  }
+  tbody td:first-child {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 12px;
+    color: var(--ochre);
+    white-space: nowrap;
+  }
+  .field-name {
+    font-weight: 600;
+    color: var(--ivory);
+    font-family: inherit;
+    font-size: 13.5px;
+  }
+  .val-note { color: rgba(245,240,232,0.45); font-size: 12px; }
+
+  /* ── Code blocks ── */
+  pre {
+    background: var(--code-bg);
+    border: 1px solid rgba(139,168,136,0.15);
+    border-left: 3px solid var(--sage);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin: 16px 0;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: #c8e6c4;
+  }
+  pre .comment { color: rgba(139,168,136,0.5); }
+  code {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 12px;
+    background: rgba(139,168,136,0.1);
+    color: var(--sage-light);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+  pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+    font-size: inherit;
+  }
+
+  /* ── Verification table ── */
+  .verify-table tbody td.url {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    color: var(--sage-light);
+  }
+  .verify-table tbody td.expected {
+    font-family: inherit;
+    color: rgba(245,240,232,0.7);
+  }
+
+  /* ── Footer ── */
+  .doc-footer {
+    border-top: 1px solid var(--border);
+    margin-top: 64px;
+    padding-top: 24px;
+    text-align: center;
+    font-size: 11px;
+    color: rgba(245,240,232,0.28);
+    letter-spacing: 0.1em;
+  }
+
+  @media print {
+    body { background: white; color: #1a1a1a; }
+    .doc-header { background: #f5f0e8; border-bottom: 2px solid #c05d33; }
+    .doc-header h1, .doc-header .eyebrow { color: #1a2b1e; }
+    pre { background: #f0ede8; border-color: #8ba888; color: #1a2b1e; }
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div class="doc-header-inner">
+    <p class="eyebrow">Deployment Reference — GoDaddy cPanel</p>
+    <h1>Jimbo's Nursery &amp; Landscaping</h1>
+    <p class="subtitle">Next.js 14 · Prisma SQLite · Node.js 20 · cPanel Node.js Application Manager</p>
+  </div>
+</div>
+
+<div class="wrapper">
+
+  <nav class="toc">
+    <p class="toc-title">Table of Contents</p>
+    <ol>
+      <li><a href="#prereqs">Prerequisites — Mac Setup</a></li>
+      <li><a href="#open-cpanel">Open cPanel</a></li>
+      <li><a href="#create-app">Create Node.js Application</a></li>
+      <li><a href="#upload">Upload Project Files</a></li>
+      <li><a href="#env-vars">Set Environment Variables</a></li>
+      <li><a href="#terminal">Terminal — Install &amp; Build</a></li>
+      <li><a href="#start">Start the Application</a></li>
+      <li><a href="#ssl">Enable HTTPS / SSL</a></li>
+      <li><a href="#verify">Verify the Deployment</a></li>
+      <li><a href="#maintenance">Ongoing Maintenance</a></li>
+    </ol>
+  </nav>
+
+  <!-- ────────────────────────────────── PREREQS ── -->
+  <section class="step-section" id="prereqs">
+    <div class="step-label">
+      <span class="step-num">Before You Start</span>
+      <h2>Mac Setup — Run These First</h2>
+    </div>
+
+    <p>Do both of these on your Mac before touching GoDaddy.</p>
+
+    <h3>1 — Create the Upload Archive</h3>
+    <p>This builds a clean archive that excludes local-only files (node_modules, macOS binaries, .env, etc.).</p>
+    <pre><code>cd /Users/samuelrussell/Documents/Jimbos-Nursry
+
+tar --exclude='./.DS_Store' \
+    --exclude='./node_modules' \
+    --exclude='./.next' \
+    --exclude='./.runtime' \
+    --exclude='./.env' \
+    --exclude='./Market-Pulse' \
+    --exclude='./Jimbos-Nursery' \
+    --exclude='./screenshot.js' \
+    --exclude='./tsconfig.tsbuildinfo' \
+    --exclude='./CLOUDFLARE_DEMO.md' \
+    --exclude='./.claude' \
+    -czf ~/Desktop/jimbos-deploy.tar.gz .</code></pre>
+
+    <h3>2 — Generate a Strong SESSION_SECRET</h3>
+    <p>Run this once and copy the output. You will paste it into the environment variables section in Step 5.</p>
+    <pre><code>node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"</code></pre>
+
+    <div class="callout warning">
+      <span class="icon">⚠</span>
+      <span>Save this value somewhere safe before continuing. You cannot recover it — you would have to regenerate it and restart the app.</span>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ────────────────────────────────── CPANEL ── -->
+  <section class="step-section" id="open-cpanel">
+    <div class="step-label">
+      <span class="step-num">Step 1</span>
+      <h2>Open cPanel</h2>
+    </div>
+    <ol class="steps">
+      <li>Go to <strong>account.godaddy.com</strong> and sign in.</li>
+      <li>Click <strong>My Products</strong> in the top navigation.</li>
+      <li>Under <strong>Web Hosting</strong>, click the <strong>Manage</strong> button next to your plan.</li>
+      <li>cPanel opens in a new tab.</li>
+    </ol>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ────────────────────────────────── CREATE APP ── -->
+  <section class="step-section" id="create-app">
+    <div class="step-label">
+      <span class="step-num">Step 2</span>
+      <h2>Create the Node.js Application</h2>
+    </div>
+    <ol class="steps">
+      <li>In cPanel, scroll to the <strong>Software</strong> section.</li>
+      <li>Click the <strong>Node.js</strong> icon (green Node logo).</li>
+      <li>Click the blue <strong>Create Application</strong> button.</li>
+    </ol>
+
+    <p>Fill in the form with these exact values:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Value to select or type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Node.js version</td>
+            <td><strong>20</strong> — if not listed, choose the highest available (18 or 22 both work)</td>
+          </tr>
+          <tr>
+            <td>Application mode</td>
+            <td><strong>Production</strong></td>
+          </tr>
+          <tr>
+            <td>Application root</td>
+            <td><strong>jimbos-nursery</strong> — type this exactly; GoDaddy creates the folder at ~/jimbos-nursery/</td>
+          </tr>
+          <tr>
+            <td>Application URL</td>
+            <td>Select your domain from the dropdown (e.g. <code>jimbosnursery.com</code>)</td>
+          </tr>
+          <tr>
+            <td>Application startup file</td>
+            <td><strong>server.js</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ol class="steps" start="4">
+      <li>Click <strong>Create</strong>.</li>
+      <li>After creation, a panel appears showing a <strong>virtual environment path</strong> — it looks like:<br>
+        <code>/home/yourusername/nodevenv/jimbos-nursery/20/bin/activate</code><br>
+        <strong>Copy this full path and save it.</strong> You will use it in Step 6.</li>
+    </ol>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ────────────────────────────────── UPLOAD ── -->
+  <section class="step-section" id="upload">
+    <div class="step-label">
+      <span class="step-num">Step 3</span>
+      <h2>Upload Project Files</h2>
+    </div>
+    <ol class="steps">
+      <li>In cPanel, scroll to the <strong>Files</strong> section → click <strong>File Manager</strong>.</li>
+      <li>In the left sidebar, click the home icon or navigate up until you see your home directory (not public_html — the app lives at <code>~/jimbos-nursery/</code>).</li>
+      <li>Click the <strong>jimbos-nursery</strong> folder to open it.</li>
+      <li>Click <strong>Upload</strong> in the toolbar.</li>
+      <li>Drag <code>jimbos-deploy.tar.gz</code> from your Mac desktop into the upload window. Wait for the upload to complete, then close the upload panel.</li>
+      <li>Back in File Manager, right-click <code>jimbos-deploy.tar.gz</code> → click <strong>Extract</strong>.</li>
+      <li>Confirm the destination is <code>/home/yourusername/jimbos-nursery/</code> → click <strong>Extract Files</strong>.</li>
+      <li>The folder should now contain <code>package.json</code>, <code>src/</code>, <code>prisma/</code>, <code>public/</code>, <code>server.js</code>, and other project files.</li>
+    </ol>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ────────────────────────────────── ENV VARS ── -->
+  <section class="step-section" id="env-vars">
+    <div class="step-label">
+      <span class="step-num">Step 4</span>
+      <h2>Set Environment Variables</h2>
+    </div>
+    <ol class="steps">
+      <li>Go back to <strong>cPanel → Node.js</strong>.</li>
+      <li>Click the <strong>pencil (edit) icon</strong> next to the jimbos-nursery app.</li>
+      <li>Scroll down to the <strong>Environment Variables</strong> section.</li>
+      <li>Click <strong>Add Variable</strong> for each row in the table below.</li>
+      <li>Click <strong>Save</strong> when all variables are entered.</li>
+    </ol>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Variable Name</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>DATABASE_URL</td>
+            <td><code>file:./prod.db</code></td>
+          </tr>
+          <tr>
+            <td>ADMIN_USERNAME</td>
+            <td><code>cwoolsey</code></td>
+          </tr>
+          <tr>
+            <td>ADMIN_PASSWORD_HASH</td>
+            <td><code><your-64-character-password-hash></code></td>
+          </tr>
+          <tr>
+            <td>SESSION_SECRET</td>
+            <td>Paste the 96-character hex string generated in the Prerequisites step</td>
+          </tr>
+          <tr>
+            <td>CLOVER_ENVIRONMENT</td>
+            <td><code>sandbox</code></td>
+          </tr>
+          <tr>
+            <td>NEXT_PUBLIC_CLOVER_ENVIRONMENT</td>
+            <td><code>sandbox</code></td>
+          </tr>
+          <tr>
+            <td>CLOVER_MERCHANT_ID</td>
+            <td><span class="val-note">Leave blank until Clover is configured</span></td>
+          </tr>
+          <tr>
+            <td>CLOVER_API_TOKEN</td>
+            <td><span class="val-note">Leave blank until Clover is configured</span></td>
+          </tr>
+          <tr>
+            <td>NEXT_PUBLIC_CLOVER_API_KEY</td>
+            <td><span class="val-note">Leave blank until Clover is configured</span></td>
+          </tr>
+          <tr>
+            <td>CLOVER_WEBHOOK_SECRET</td>
+            <td><span class="val-note">Leave blank until Clover is configured</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ────────────────────────────────── TERMINAL ── -->
+  <section class="step-section" id="terminal">
+    <div class="step-label">
+      <span class="step-num">Step 5</span>
+      <h2>Terminal — Install &amp; Build</h2>
+    </div>
+    <ol class="steps">
+      <li>In cPanel, scroll to the <strong>Advanced</strong> section → click <strong>Terminal</strong>.</li>
+      <li>A browser terminal opens. Run the commands below <strong>in order</strong> — wait for each to finish before running the next.</li>
+    </ol>
+
+    <h3>Activate the Node.js Environment</h3>
+    <p>Replace <code>yourusername</code> with your actual GoDaddy cPanel username (shown in the terminal prompt).</p>
+    <pre><code>source ~/nodevenv/jimbos-nursery/20/bin/activate</code></pre>
+
+    <h3>Navigate to the App Folder</h3>
+    <pre><code>cd ~/jimbos-nursery</code></pre>
+
+    <h3>Install Dependencies</h3>
+    <p>The <code>PUPPETEER_SKIP_CHROMIUM_DOWNLOAD</code> flag prevents a 300 MB Chromium download that will fail on shared hosting.</p>
+    <pre><code>PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm install</code></pre>
+
+    <h3>Generate the Prisma Linux Client</h3>
+    <p>This regenerates the database client for the Linux server (the Mac version won't work here).</p>
+    <pre><code>npx prisma generate</code></pre>
+
+    <h3>Create the Production Database</h3>
+    <pre><code>npx prisma db push</code></pre>
+
+    <h3>Seed Starting Data (Optional)</h3>
+    <pre><code>npm run db:seed</code></pre>
+
+    <h3>Build the Application</h3>
+    <p>This takes 2–4 minutes. Wait for it to complete fully.</p>
+    <pre><code>npm run build</code></pre>
+
+    <p>A successful build ends with output similar to:</p>
+    <pre><code><span class="comment">✓ Compiled successfully
+Route (app)                     Size     First Load JS
+┌ ○ /                           ...
+├ ○ /crm                        ...
+...</span></code></pre>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ────────────────────────────────── START ── -->
+  <section class="step-section" id="start">
+    <div class="step-label">
+      <span class="step-num">Step 6</span>
+      <h2>Start the Application</h2>
+    </div>
+    <ol class="steps">
+      <li>Go back to <strong>cPanel → Node.js</strong>.</li>
+      <li>Your app shows a status of <strong>Stopped</strong>.</li>
+      <li>Click the <strong>Start</strong> button (or <strong>Restart</strong> if it shows as Running).</li>
+      <li>The status changes to <strong>Running</strong>. The site is now live.</li>
+    </ol>
+
+    <div class="callout info">
+      <span class="icon">ℹ</span>
+      <span>If the app fails to start, click the <strong>Show Errors</strong> link that appears. The most common causes are a missing <code>server.js</code> file (check the upload) or a missing environment variable.</span>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ────────────────────────────────── SSL ── -->
+  <section class="step-section" id="ssl">
+    <div class="step-label">
+      <span class="step-num">Step 7</span>
+      <h2>Enable HTTPS / SSL</h2>
+    </div>
+    <ol class="steps">
+      <li>In cPanel, scroll to the <strong>Security</strong> section.</li>
+      <li>Click <strong>SSL/TLS</strong>.</li>
+      <li>Click <strong>Manage SSL Sites</strong>.</li>
+      <li>Under <strong>Install an SSL Website</strong>, select your domain from the dropdown.</li>
+      <li>Click <strong>Autofill by Domain</strong> — GoDaddy populates the certificate fields automatically if a free DV certificate is provisioned.</li>
+      <li>Click <strong>Install Certificate</strong>.</li>
+    </ol>
+
+    <div class="callout info">
+      <span class="icon">ℹ</span>
+      <span>If Autofill does not work, look for <strong>Let's Encrypt SSL</strong> in the Security section and click <strong>Issue</strong> next to your domain. GoDaddy plans that include cPanel typically include Let's Encrypt.</span>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ────────────────────────────────── VERIFY ── -->
+  <section class="step-section" id="verify">
+    <div class="step-label">
+      <span class="step-num">Step 8</span>
+      <h2>Verify the Deployment</h2>
+    </div>
+    <p>Open a browser and test each URL. Replace <code>yourdomain.com</code> with your actual domain.</p>
+
+    <div class="table-wrap">
+      <table class="verify-table">
+        <thead>
+          <tr>
+            <th>URL</th>
+            <th>Expected Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="url">https://yourdomain.com</td>
+            <td class="expected">Jimbo's Nursery homepage loads</td>
+          </tr>
+          <tr>
+            <td class="url">https://yourdomain.com/crm</td>
+            <td class="expected">Redirects to <code>/login?redirect=/crm</code> — confirms middleware is active</td>
+          </tr>
+          <tr>
+            <td class="url">https://yourdomain.com/admin</td>
+            <td class="expected">Redirects to <code>/login?redirect=/admin</code> — confirms admin is protected</td>
+          </tr>
+          <tr>
+            <td class="url">https://yourdomain.com/login</td>
+            <td class="expected">Login form appears</td>
+          </tr>
+          <tr>
+            <td class="url">Log in as <code>cwoolsey</code></td>
+            <td class="expected">Redirects to <code>/crm</code> command center</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ────────────────────────────────── MAINTENANCE ── -->
+  <section class="step-section" id="maintenance">
+    <div class="step-label">
+      <span class="step-num">Ongoing</span>
+      <h2>Maintenance Reference</h2>
+    </div>
+
+    <h3>Restart the App</h3>
+    <p>After any environment variable change or configuration update:</p>
+    <p>cPanel → Node.js → <strong>Restart</strong> button</p>
+
+    <h3>Update the Code</h3>
+    <ol class="steps">
+      <li>Create a new archive on your Mac (same tar command as Prerequisites).</li>
+      <li>Upload via File Manager → Extract into <code>~/jimbos-nursery/</code>, overwriting existing files.</li>
+      <li>Open Terminal → activate the environment → run <code>npm install</code> and <code>npm run build</code>.</li>
+      <li>cPanel → Node.js → <strong>Restart</strong>.</li>
+    </ol>
+
+    <h3>Connect Clover Payments (When Ready)</h3>
+    <ol class="steps">
+      <li>Get your credentials from Clover Dashboard → Account &amp; Setup → API Tokens.</li>
+      <li>In cPanel → Node.js → Edit app → Environment Variables.</li>
+      <li>Fill in <code>CLOVER_MERCHANT_ID</code>, <code>CLOVER_API_TOKEN</code>, <code>NEXT_PUBLIC_CLOVER_API_KEY</code>, and <code>CLOVER_WEBHOOK_SECRET</code>.</li>
+      <li>Change <code>CLOVER_ENVIRONMENT</code> and <code>NEXT_PUBLIC_CLOVER_ENVIRONMENT</code> from <code>sandbox</code> to <code>production</code> when going live.</li>
+      <li>Restart the app.</li>
+    </ol>
+
+    <h3>Change the Admin Password</h3>
+    <p>Generate a new SHA-256 hash of your new password on your Mac:</p>
+    <pre><code>node -e "const c=require('crypto');process.stdout.write(c.createHash('sha256').update('YOUR_NEW_PASSWORD').digest('hex')+'\n')"</code></pre>
+    <p>Then update <code>ADMIN_PASSWORD_HASH</code> in the Node.js app environment variables and restart.</p>
+  </section>
+
+</div>
+
+<div class="doc-footer">
+  Jimbo's Nursery &amp; Landscaping &nbsp;·&nbsp; GoDaddy cPanel Deployment Guide &nbsp;·&nbsp; Next.js 14 / Prisma SQLite
+</div>
+
+</body>
+</html>

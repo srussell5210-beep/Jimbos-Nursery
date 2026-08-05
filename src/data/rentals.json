@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1",
+    "title": "Weddings & Galas",
+    "desc": "Lush palms and statement trees for unforgettable celebrations.",
+    "icon": "PartyPopper"
+  },
+  {
+    "id": "2",
+    "title": "Photo Shoots",
+    "desc": "Botanical backdrops for fashion, product, and editorial photography.",
+    "icon": "Camera"
+  },
+  {
+    "id": "3",
+    "title": "Corporate Events",
+    "desc": "Sophisticated greenery for conferences, lobbys, and executive meetings.",
+    "icon": "Briefcase"
+  },
+  {
+    "id": "4",
+    "title": "Residential Staging",
+    "desc": "High-end plant curation to elevate luxury real estate listings.",
+    "icon": "Leaf"
+  }
+]
