@@ -46,7 +46,10 @@ export default function AboutPage() {
           <span className="text-nursery-terracotta font-bold tracking-[0.3em] uppercase mb-4 block">Our Story</span>
           <h1 className="text-6xl font-serif text-nursery-midnight mb-8 leading-tight">Family-owned, <span className="italic text-nursery-terracotta">Gulf Coast grown</span></h1>
           <p className="text-xl text-nursery-midnight/60 leading-relaxed">
-            Since 1975, Jimbo’s Nursery has grown from a small backyard nursery into a second-generation, family-run garden center and landscaping team serving the Gulf Coast.
+            Jimbo’s Nursery is a second-generation, family-owned garden center that’s served Santa Fe and
+            Galveston County for more than 50 years. Across five greenhouses, we grow everything from native
+            perennials to one of the largest bromeliad collections in Texas, with a knowledgeable team on hand
+            to help you find what will actually thrive in a Gulf Coast garden.
           </p>
         </header>
 
