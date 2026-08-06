@@ -101,14 +101,14 @@ export default async function HomePage() {
               { title: 'Landscaping', desc: 'Full-service design and installation to help bring your landscape vision to life.', icon: Info, link: "/landscaping" },
               { title: 'Garden Workshops', desc: 'Fun, hands-on workshops for kids and adults to get creative, learn about plants, and get their hands dirty.', icon: Calendar, link: "/events" },
             ].map((service, i) => (
-              <div key={i} className="group p-10 bg-white border border-nursery-sage/10 rounded-2xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+              <Link key={i} href={service.link} className="group block p-10 bg-white border border-nursery-sage/10 rounded-2xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
                 <service.icon className="w-12 h-12 text-nursery-terracotta mb-8 group-hover:scale-110 transition-transform" />
                 <h3 className="text-2xl font-serif text-nursery-midnight mb-4">{service.title}</h3>
                 <p className="text-nursery-midnight/60 leading-relaxed mb-8">{service.desc}</p>
-                <Link href={service.link} className="inline-flex items-center gap-2 text-nursery-midnight font-bold border-b-2 border-nursery-terracotta pb-1 group-hover:gap-4 transition-all">
+                <span className="inline-flex items-center gap-2 text-nursery-midnight font-bold border-b-2 border-nursery-terracotta pb-1 group-hover:gap-4 transition-all">
                   Learn More
-                </Link>
-              </div>
+                </span>
+              </Link>
             ))}
           </div>
         </div>
