@@ -6,6 +6,18 @@
   # Netlify's default image ships Node 24, which is outside the range
   # package.json declares (>=18.17 <23) and unsupported by Next 14.
   NODE_VERSION = "20"
+  # puppeteer is a devDependency used only by screenshot.js, which points at
+  # a locally installed Chrome. Nothing in the build needs the bundled
+  # Chromium, so skip the ~170MB download. (Both names: v21 reads the
+  # former, the latter is the legacy alias.)
+  PUPPETEER_SKIP_DOWNLOAD = "true"
+  PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = "true"
+  # ADMIN_USERNAME is read only by the server-side auth route handler
+  # (src/app/api/auth/route.ts) and never reaches a client bundle. Its value
+  # is short enough to collide with unrelated strings in the build output,
+  # which trips secret scanning. Exempt this one key only — the scanner
+  # still guards ADMIN_PASSWORD_HASH, SESSION_SECRET and the API tokens.
+  SECRETS_SCAN_OMIT_KEYS = "ADMIN_USERNAME"
 
 [functions]
   included_files = ["prisma/dev.db"]

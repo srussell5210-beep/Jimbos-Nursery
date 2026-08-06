@@ -25,5 +25,11 @@ prisma/dev.db
 tsconfig.tsbuildinfo
 *.tsbuildinfo
 
+# Dev screenshots. screenshot.js regenerates these on demand; committing them
+# put ~29MB of build-irrelevant PNGs into every clone and CDN upload.
+/public/images/uploads/screenshot_*.png
+/public/images/uploads/crm-*.png
+/Screenshot *.png
+
 # macOS
 .DS_Store
