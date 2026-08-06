@@ -355,7 +355,7 @@ export default async function HomePage() {
             <div className="lg:col-span-2 space-y-4">
                <h4 className="text-[10px] font-bold uppercase tracking-[0.4em] text-nursery-terracotta">Exploration</h4>
                <ul className="grid grid-cols-1 gap-y-3 text-xl font-serif italic text-nursery-ivory/70">
-                  <li><Link href="/about" className="hover:text-nursery-sage transition-all hover:pl-2">Our History</Link></li>
+                  <li><Link href="/about" className="hover:text-nursery-sage transition-all hover:pl-2">About Us</Link></li>
                   <li><Link href="/landscaping" className="hover:text-nursery-sage transition-all hover:pl-2">Landscaping</Link></li>
                   <li><Link href="/wholesale" className="hover:text-nursery-sage transition-all hover:pl-2">Wholesale</Link></li>
                   <li><Link href="/rentals" className="hover:text-nursery-sage transition-all hover:pl-2">Rentals</Link></li>

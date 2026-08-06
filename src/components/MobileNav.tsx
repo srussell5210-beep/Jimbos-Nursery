@@ -42,7 +42,7 @@ export default function MobileNav() {
                 { label: "Landscaping", href: "/landscaping" },
                 { label: "Wholesale", href: "/wholesale" },
                 { label: "Plant Rentals", href: "/rentals" },
-                { label: "Our History", href: "/about" },
+                { label: "About Us", href: "/about" },
               ].map((item) => (
                 <Link
                   key={item.href}
