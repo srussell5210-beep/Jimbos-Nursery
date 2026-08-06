@@ -26,7 +26,6 @@ export default function Navbar({ logoSize = 80, transparent = false }: NavbarPro
           <Link href="/events" className="hover:text-nursery-terracotta transition-colors">Events</Link>
           <Link href="/whats-new" className="hover:text-nursery-terracotta transition-colors">What&apos;s New</Link>
           <Link href="/gift-cards" className="hover:text-nursery-terracotta transition-colors">Gift Cards</Link>
-          <Link href="/shop" className="bg-nursery-sage text-white px-6 py-2 rounded-full hover:bg-nursery-midnight transition-all">Shop</Link>
        </div>
 
        <div className="lg:hidden">
