@@ -333,7 +333,7 @@ export default async function HomePage() {
                <div className="flex gap-10 text-xs font-bold tracking-[0.3em] uppercase text-nursery-sage">
                   <a href="https://www.facebook.com/Jimbosnursery1975" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Facebook</a>
                   <a href="https://www.instagram.com/jimbosnursery" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram</a>
-                  <a href={`mailto:jimbosnursery75@gmail.com?subject=${encodeURIComponent("General Information Request – Jimbo's Nursery")}`} className="hover:text-white transition-colors">Contact Us</a>
+                  <Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link>
                </div>
             </div>
 

@@ -11,11 +11,34 @@ import Navbar from '@/components/Navbar';
 
 export const dynamic = 'force-dynamic';
 
+// Existing site photography. Swap these for real gallery shots of the yard when
+// you have them — the alt text describes each image and should change with it.
+const GALLERY = [
+  { src: '/images/hero_placeholder.jpg', alt: 'Rows of plants under the nursery greenhouse canopy' },
+  { src: '/images/monarch_sanctuary.png', alt: 'Monarch butterflies on flowering native plants' },
+  { src: '/images/event_propagation.jpg', alt: 'Hands potting cuttings at a propagation workshop' },
+  { src: '/images/about_philosophy.jpg', alt: 'Close-up of foliage growing at the nursery' },
+  { src: '/images/event_terrarium.jpg', alt: 'Glass terrariums assembled at a nursery workshop' },
+  { src: '/images/landscaping_hero.jpg', alt: 'Finished landscape planting installed by the Jimbo’s crew' },
+  { src: '/images/event_bees.jpg', alt: 'Pollinators visiting blooms in the garden' },
+  { src: '/images/seasonal_placeholder.jpg', alt: 'Seasonal color and bedding plants on display' },
+];
+
 export default async function EventsPage() {
   let events = [];
   let availability: Record<string, EventAvailability> = {};
   try {
-    events = await readEvents();
+    // Chronological, soonest first. `date` is free text ("Aug 15, 2026"), so
+    // anything Date.parse can't read sorts to the end rather than scrambling
+    // the list.
+    events = [...(await readEvents())].sort((a, b) => {
+      const ta = Date.parse(a.date);
+      const tb = Date.parse(b.date);
+      if (Number.isNaN(ta) && Number.isNaN(tb)) return 0;
+      if (Number.isNaN(ta)) return 1;
+      if (Number.isNaN(tb)) return -1;
+      return ta - tb;
+    });
     const reservations = await readReservations();
     for (const event of events) {
       availability[event.id] = summarizeReservations(reservations, event.id);
@@ -33,7 +56,8 @@ export default async function EventsPage() {
           <span className="text-nursery-terracotta font-bold tracking-[0.3em] uppercase mb-4 block">Community & Education</span>
           <h1 className="text-6xl font-serif text-nursery-midnight mb-6">Upcoming Events</h1>
           <p className="text-xl text-nursery-midnight/60 max-w-2xl mx-auto">
-            Join us for workshops, seminars, and social events designed to inspire and educate the botanical community.
+            Explore community events, hands-on workshops for adults and kids, free gardening classes, and
+            relaxing wellness experiences at Jimbo’s Nursery.
           </p>
         </header>
 
@@ -113,7 +137,8 @@ export default async function EventsPage() {
               <span className="text-nursery-ochre font-bold tracking-[0.5em] uppercase text-xs mb-6 block animate-fade-in">For Groups &amp; Gatherings</span>
               <h2 className="text-5xl md:text-7xl font-serif text-nursery-ivory mb-8 leading-tight">Host a Private <span className="italic text-nursery-sage">Workshop</span></h2>
               <p className="text-xl md:text-2xl text-nursery-ivory/80 mb-12 font-light leading-relaxed">
-                 Perfect for birthdays, corporate team building, or small gatherings. Customize your experience with our expert staff in an intimate, botanical setting.
+                 Perfect for birthdays, team building, or garden clubs. Customize a hands-on experience
+                 designed around your group and occasion.
               </p>
               <div className="flex flex-col md:flex-row items-center justify-center gap-6">
                  <button className="bg-nursery-ochre text-nursery-midnight px-12 py-5 rounded-full font-bold text-lg hover:bg-nursery-ivory hover:scale-105 transition-all shadow-2xl">
@@ -131,6 +156,37 @@ export default async function EventsPage() {
            </div>
            <div className="absolute bottom-0 left-0 p-12 opacity-20 pointer-events-none hidden md:block">
               <div className="w-24 h-24 border-b-2 border-l-2 border-nursery-ochre rounded-bl-3xl" />
+           </div>
+        </section>
+
+        {/* Nursery Gallery */}
+        <section aria-labelledby="gallery-heading" className="mt-32">
+           <div className="text-center mb-16">
+              <span className="text-nursery-terracotta font-bold tracking-[0.3em] uppercase mb-4 block text-xs">
+                 Around the Nursery
+              </span>
+              <h2 id="gallery-heading" className="text-5xl font-serif text-nursery-midnight">
+                 A Look Around <span className="italic text-nursery-terracotta">the Yard</span>
+              </h2>
+           </div>
+
+           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {GALLERY.map((photo, i) => (
+                 <figure
+                    key={photo.src}
+                    className={`relative overflow-hidden rounded-2xl border border-nursery-sage/10 bg-nursery-midnight/5 ${
+                       i === 0 ? 'col-span-2 lg:col-span-2 aspect-[16/10]' : 'aspect-[4/3]'
+                    }`}
+                 >
+                    <Image
+                       src={photo.src}
+                       alt={photo.alt}
+                       fill
+                       sizes="(max-width: 1024px) 50vw, 33vw"
+                       className="object-cover hover:scale-105 transition-transform duration-700"
+                    />
+                 </figure>
+              ))}
            </div>
         </section>
       </main>

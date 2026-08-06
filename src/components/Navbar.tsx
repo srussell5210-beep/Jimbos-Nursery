@@ -17,20 +17,7 @@ export default function Navbar({ logoSize = 80, transparent = false }: NavbarPro
           <Image src="/images/jimbo_logo.png" alt="Jimbo's Nursery Logo" width={logoSize} height={logoSize} />
        </Link>
 
-       <div className="hidden lg:flex items-center gap-8 text-sm font-bold tracking-widest uppercase text-nursery-midnight/60">
-          <Link href="/#services" className="hover:text-nursery-terracotta transition-colors">Services</Link>
-          <Link href="/about" className="hover:text-nursery-terracotta transition-colors">About Us</Link>
-          <Link href="/landscaping" className="hover:text-nursery-terracotta transition-colors">Landscaping</Link>
-          <Link href="/rentals" className="hover:text-nursery-terracotta transition-colors">Plant Rentals</Link>
-          <Link href="/wholesale" className="hover:text-nursery-terracotta transition-colors text-nursery-terracotta">Wholesale</Link>
-          <Link href="/events" className="hover:text-nursery-terracotta transition-colors">Events</Link>
-          <Link href="/whats-new" className="hover:text-nursery-terracotta transition-colors">What&apos;s New</Link>
-          <Link href="/gift-cards" className="hover:text-nursery-terracotta transition-colors">Gift Cards</Link>
-       </div>
-
-       <div className="lg:hidden">
-          <MobileNav />
-       </div>
+       <MobileNav />
     </nav>
   );
 }

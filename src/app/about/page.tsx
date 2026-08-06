@@ -8,7 +8,7 @@ export default function AboutPage() {
     {
       year: "1975",
       title: "A Backyard Beginning",
-      description: "Jimmy Woolsey starts Jimbo’s Nursery, trucking plants from his mother’s nursery in the Valley and selling them out of the back of his truck to local florists in the Houston Area.",
+      description: "Jimmy Woolsey founded Jimbo’s Nursery by trucking plants in from his mother’s nursery in the Rio Grande Valley and selling them door to door to local florists throughout the Houston area.",
       icon: Leaf
     },
     {
@@ -20,13 +20,13 @@ export default function AboutPage() {
     {
       year: "2000",
       title: "A Passion for Bromeliads",
-      description: "A growing interest in bromeliads leads to the start of a now-extensive collection, becoming a signature part of Jimbo’s.",
+      description: "As Jimmy became more interested in bromeliads, he began building a collection that eventually grew into one of the largest bromeliad operations in Texas, with an entire greenhouse dedicated to growing them.",
       icon: Sprout
     },
     {
       year: "2021",
       title: "Expanding the Vision",
-      description: "In 2021, Claire, Jimmy’s daughter, joined the nursery and became part of the next generation helping carry Jimbo’s forward. Working alongside her business partner Anita, whose background in farming brought valuable growing experience, the two have helped expand the nursery’s social media presence, events, plant selection, and community-focused offerings.",
+      description: "In 2021, Jimmy’s daughter Claire joined the nursery, bringing the next generation into the family business. She works alongside business partner Anita, whose background in farming adds hands-on growing experience to the team. Together, they’ve expanded Jimbo’s social media presence, events, plant selection, and community-focused offerings.",
       icon: Users
     },
     {
@@ -96,8 +96,8 @@ export default function AboutPage() {
               
               <p className="relative z-10 text-xl text-nursery-ivory/80 leading-relaxed">
                  Jimbo’s Nursery is a family-owned garden center in Santa Fe, TX, serving the Gulf Coast since
-                 1975. We are on 2 acres of land with 4 greenhouses and offer a wide range of quality plants,
-                 from native and landscape staples to bromeliads, tropicals, cactus, and succulents—including
+                 1975. We are on 2 acres of land with 5 greenhouses and offer a wide range of quality plants,
+                 from native and landscape staples to bromeliads, tropicals, cactus, and succulents — including
                  one of the largest selections of bromeliads in Texas. From workshops and community events to
                  hands-on landscaping, we’re here to help you grow and create something that lasts.
               </p>

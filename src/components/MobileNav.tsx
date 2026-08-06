@@ -12,7 +12,7 @@ export default function MobileNav() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="text-nursery-midnight p-1"
+        className="text-nursery-midnight p-3 -mr-3"
         aria-label="Open menu"
       >
         <Menu className="w-6 h-6" />

@@ -1,48 +1,11 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Leaf, ArrowLeft } from 'lucide-react';
+import { Leaf } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { readPosts, sortPosts } from '@/lib/posts-store';
 
 export const dynamic = 'force-dynamic';
-
-const plants = [
-  {
-    name: 'Mexican Sycamore',
-    category: 'Shade Tree',
-    desc: 'A fast-growing native with striking silver-white undersides on its leaves. Exceptional Gulf Coast performer.',
-    image: '/images/Mexican-Sycamore.jpeg',
-    tag: 'New Arrival',
-  },
-  {
-    name: 'Monstera Deliciosa',
-    category: 'Tropical',
-    desc: 'Bold, split leaves that bring the tropics indoors or onto a shaded patio. A statement plant in any space.',
-    image: '/images/Monstera-Deliciosa.jpeg',
-    tag: 'In Stock',
-  },
-  {
-    name: 'Red Yucca',
-    category: 'Native',
-    desc: 'Tall coral-red flower spikes beloved by hummingbirds. Drought-tough and thrives in South Texas heat.',
-    image: '/images/Red-Yucca.jpeg',
-    tag: 'Gulf Coast Favorite',
-  },
-  {
-    name: 'Sago Palm',
-    category: 'Cycad',
-    desc: 'A living fossil with deep architectural presence. Slow-growing, incredibly long-lived, and endlessly elegant.',
-    image: '/images/Sago-Palm.jpeg',
-    tag: 'In Stock',
-  },
-];
-
-const tagColors: Record<string, string> = {
-  'New Arrival': 'bg-nursery-terracotta text-nursery-ivory',
-  'In Stock': 'bg-nursery-sage/20 text-nursery-midnight',
-  'Gulf Coast Favorite': 'bg-nursery-ochre/20 text-nursery-midnight',
-};
 
 export default async function WhatsNewPage() {
   let posts: Awaited<ReturnType<typeof readPosts>> = [];
@@ -75,7 +38,8 @@ export default async function WhatsNewPage() {
               What's <span className="italic text-nursery-sage">New</span>
             </h1>
             <p className="text-lg text-nursery-ivory/70 mt-6 max-w-xl leading-relaxed">
-              Hand-picked plants for Gulf Coast gardens — natives, tropicals, cactus, succulents, and seasonal favorites.
+              See what’s new at Jimbo’s Nursery! Explore the latest plants to arrive in our greenhouses and
+              discover something new for your garden.
             </p>
           </div>
         </section>
@@ -85,7 +49,7 @@ export default async function WhatsNewPage() {
           <section className="py-24 bg-white border-b border-nursery-sage/10">
             <div className="max-w-7xl mx-auto px-12">
               <div className="mb-16">
-                <span className="text-nursery-terracotta font-bold tracking-[0.4em] uppercase text-xs mb-4 block">Garden Wisdom</span>
+                <span className="text-nursery-terracotta font-bold tracking-[0.4em] uppercase text-xs mb-4 block">Learn about New Plants</span>
                 <h2 className="text-4xl font-serif text-nursery-midnight mb-2">Latest Posts</h2>
                 <div className="w-16 h-[2px] bg-nursery-terracotta" />
               </div>
@@ -106,44 +70,6 @@ export default async function WhatsNewPage() {
             </div>
           </section>
         )}
-
-        {/* Plant Grid */}
-        <section className="py-24 bg-nursery-ivory">
-          <div className="max-w-7xl mx-auto px-12">
-            <div className="flex items-center justify-between mb-16">
-              <div>
-                <h2 className="text-4xl font-serif text-nursery-midnight mb-2">Current Inventory Highlights</h2>
-                <div className="w-16 h-[2px] bg-nursery-terracotta" />
-              </div>
-              <Link href="/" className="inline-flex items-center gap-2 text-nursery-midnight/50 hover:text-nursery-terracotta transition-colors text-sm font-medium uppercase tracking-widest">
-                <ArrowLeft className="w-4 h-4" /> Back Home
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {plants.map((plant) => (
-                <div key={plant.name} className="group bg-white border border-nursery-sage/10 rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
-                  <div className="relative h-56 overflow-hidden">
-                    <Image
-                      src={plant.image}
-                      alt={plant.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                    <span className={`absolute top-4 left-4 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full ${tagColors[plant.tag]}`}>
-                      {plant.tag}
-                    </span>
-                  </div>
-                  <div className="p-8">
-                    <span className="text-nursery-terracotta text-xs font-bold uppercase tracking-widest">{plant.category}</span>
-                    <h3 className="text-xl font-serif text-nursery-midnight mt-1 mb-3">{plant.name}</h3>
-                    <p className="text-nursery-midnight/60 text-sm leading-relaxed">{plant.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* CTA */}
         <section className="py-20 bg-nursery-midnight">
