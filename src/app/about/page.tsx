@@ -44,7 +44,7 @@ export default function AboutPage() {
       <main className="max-w-7xl mx-auto px-6 py-20">
         <header className="mb-32 text-center max-w-3xl mx-auto">
           <span className="text-nursery-terracotta font-bold tracking-[0.3em] uppercase mb-4 block">Our Story</span>
-          <h1 className="text-6xl font-serif text-nursery-midnight mb-8 leading-tight">About Us</h1>
+          <h1 className="text-6xl font-serif text-nursery-midnight mb-8 leading-tight">Family-owned, <span className="italic text-nursery-terracotta">Gulf Coast grown</span></h1>
           <p className="text-xl text-nursery-midnight/60 leading-relaxed">
             Since 1975, Jimbo’s Nursery has grown from a small backyard nursery into a second-generation, family-run garden center and landscaping team serving the Gulf Coast.
           </p>
